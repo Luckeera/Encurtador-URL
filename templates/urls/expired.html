@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}URL Expirada - Encurtador de URLs{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/error-pages.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-card">
+        <div class="card card-custom border-warning">
+            <div class="card-body p-5 text-center">
+                <div class="error-icon text-warning">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                
+                <h2 class="error-title text-warning">URL Expirada</h2>
+                
+                <p class="error-message">
+                    A URL curta <span class="error-code">{{ short_code }}</span> expirou e não está mais disponível.
+                </p>
+                
+                {% if expired_at %}
+                <div class="alert alert-warning-custom alert-custom">
+                    <i class="bi bi-calendar-x"></i>
+                    <strong>Expirou em:</strong> {{ expired_at|date:"d/m/Y H:i" }}
+                </div>
+                {% endif %}
+                
+                <div class="mt-4">
+                    <a href="{% url 'home' %}" class="btn btn-custom me-2">
+                        <i class="bi bi-plus-circle"></i> Criar Nova URL
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar
+                    </button>
+                </div>
+                
+                <!-- Tips -->
+                <div class="mt-4 text-start">
+                    <h6><i class="bi bi-lightbulb"></i> Dicas:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check2"></i> URLs sem data de expiração nunca expiram</li>
+                        <li><i class="bi bi-check2"></i> Você pode criar uma nova URL para o mesmo destino</li>
+                        <li><i class="bi bi-check2"></i> URLs expiradas são automaticamente desativadas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1><i class="bi bi-graph-up text-primary"></i> Estatísticas da URL</h1>
+            <p class="text-muted">Dados detalhados sobre sua URL encurtada</p>
+        </div>
+
+        <!-- Card Principal -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-link"></i> Informações da URL</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>URL Original:</strong>
+                        <p class="text-break">
+                            <a href="{{ url.original_url }}" target="_blank" class="text-decoration-none">
+                                {{ url.original_url }}
+                                <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>URL Encurtada:</strong>
+                        <div class="input-group">
+                            <input type="text" class="form-control" value="{{ short_url_full }}" id="short-url-copy" readonly>
+                            <button class="btn btn-outline-secondary" onclick="copyStatsURL()">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="row">
+            <!-- Total de Cliques -->
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-mouse display-4"></i>
+                        <h3>{{ total_clicks }}</h3>
+                        <p>Total de Cliques</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dias Ativa -->
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-calendar display-4"></i>
+                        <h3>{{ dias_ativa }}</h3>
+                        <p>Dias Ativa</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cliques por Dia -->
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-graph-up display-4"></i>
+                        <h3>{{ clicks_por_dia|floatformat:1 }}</h3>
+                        <p>Cliques/Dia</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-3 mb-3">
+                <div class="card {% if url.is_active %}bg-primary{% else %}bg-secondary{% endif %} text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-{% if url.is_active %}check-circle{% else %}x-circle{% endif %} display-4"></i>
+                        <h3>{% if url.is_active %}ATIVA{% else %}INATIVA{% endif %}</h3>
+                        <p>Status</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detalhes Adicionais -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-info-circle"></i> Detalhes</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Criada em:</strong> {{ created_date }}</p>
+                        <p><strong>Código:</strong> <code>{{ url.short_code }}</code></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>ID no Banco:</strong> #{{ url.id }}</p>
+                        <p><strong>Última atualização:</strong> {{ url.updated_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-primary">
+                <i class="bi bi-house"></i> Voltar ao Início
+            </a>
+            <a href="/{{ url.short_code }}/" class="btn btn-success" target="_blank">
+                <i class="bi bi-box-arrow-up-right"></i> Testar URL
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyStatsURL() {
+    const input = document.getElementById('short-url-copy');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    
+    const button = event.target;
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i>';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-secondary');
+    
+    setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+</script>
+{% endblock %}

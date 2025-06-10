@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-5">
+                <h1 class="text-center mb-4">
+                    <i class="bi bi-scissors text-primary"></i> Encurtador de URLs
+                </h1>
+                <p class="text-center text-muted mb-4">
+                    Transforme URLs longas em links curtos e rastreáveis
+                </p>
+                <form id="shorten-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="original_url" class="form-label fw-bold">
+                            <i class="bi bi-link"></i> URL para encurtar:
+                        </label>
+                        <input
+                            type="url"
+                            class="form-control form-control-lg"
+                            id="original_url"
+                            name="original_url"
+                            placeholder="https://exemplo.com/sua-url-muito-longa-aqui"
+                            required
+                        >
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-custom btn-lg">
+                            <i class="bi bi-scissors"></i> Encurtar URL
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Loading State -->
+                <div id="loading" class="text-center mt-4" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="mt-3">Encurtando sua URL...</p>
+                </div>
+
+                <!-- Success Result -->
+                <div id="result" class="mt-4" style="display: none;">
+                    <div class="alert alert-success">
+                        <h5><i class="bi bi-check-circle"></i> URL encurtada com sucesso!</h5>
+                        
+                        <!-- URL Encurtada -->
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="short-url" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyURL()">
+                                <i class="bi bi-clipboard"></i> Copiar
+                            </button>
+                        </div>
+                        
+                        <!-- Botões de Ação -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="button" class="btn btn-info" onclick="viewStats()">
+                                <i class="bi bi-graph-up"></i> Ver Estatísticas
+                            </button>
+                            <a id="test-url" href="#" target="_blank" class="btn btn-success">
+                                <i class="bi bi-box-arrow-up-right"></i> Testar URL
+                            </a>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <i class="bi bi-plus-circle"></i> Criar Nova URL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="error" class="alert alert-danger mt-4" style="display: none;">
+                    <h5><i class="bi bi-exclamation-triangle"></i> Erro</h5>
+                    <p id="error-message"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- URLs Recentes -->
+<div class="row justify-content-center mt-5">
+    <div class="col-md-10">
+        <div id="recent-section" style="display: none;">
+            <h3 class="text-center mb-4">
+                <i class="bi bi-clock-history text-primary"></i> URLs Criadas Recentemente
+            </h3>
+            <div id="recent-urls" class="row">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Variável global para armazenar o código atual
+let currentShortCode = '';
+let urlCounter = 0;
+
+document.getElementById('shorten-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Esconder resultados anteriores
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    
+    // CRIAR FormData com os dados do formulário
+    const formData = new FormData(this);
+    
+    // Fazer requisição REAL para o Django
+    fetch('/shorten/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro HTTP: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById('loading').style.display = 'none';
+        
+        if (data.success) {
+            // Sucesso - mostrar URL encurtada
+            document.getElementById('short-url').value = data.short_url;
+            document.getElementById('result').style.display = 'block';
+            
+            // Armazenar código para usar nas funções
+            currentShortCode = data.short_code;
+            
+            // Configurar link de teste
+            document.getElementById('test-url').href = data.short_url;
+            
+            // Adicionar à lista de URLs recentes
+            const originalUrl = document.getElementById('original_url').value;
+            addToRecentUrls(data.short_code, originalUrl, data.short_url);
+            
+            // Limpar formulário
+            document.getElementById('original_url').value = '';
+            
+            // Log para debug
+            console.log('URL criada:', data.short_code);
+        } else {
+            // Erro do servidor
+            document.getElementById('error-message').textContent = data.error || 'Erro desconhecido';
+            document.getElementById('error').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        // Erro de conexão
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error-message').textContent = 'Erro de conexão: ' + error.message;
+        document.getElementById('error').style.display = 'block';
+        console.error('Erro:', error);
+    });
+});
+
+function copyURL() {
+    const input = document.getElementById('short-url');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i> Copiado!';
+    setTimeout(() => {
+        button.innerHTML = originalText;
+    }, 2000);
+}
+
+function viewStats() {
+    // Usar o código armazenado globalmente
+    if (currentShortCode) {
+        window.open(`/stats/${currentShortCode}/`, '_blank');
+    } else {
+        alert('Erro: Código da URL não encontrado');
+    }
+}
+
+function resetForm() {
+    // Limpar formulário
+    document.getElementById('original_url').value = '';
+    document.getElementById('short-url').value = '';
+    
+    // Esconder resultado
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+    
+    // Focar no campo de URL
+    document.getElementById('original_url').focus();
+}
+
+function addToRecentUrls(shortCode, originalUrl, shortUrl) {
+    const recentContainer = document.getElementById('recent-urls');
+    const recentSection = document.getElementById('recent-section');
+    
+    // Mostrar seção de URLs recentes
+    recentSection.style.display = 'block';
+    
+    // Incrementar contador e criar ID único
+    urlCounter++;
+    const cardId = `url-card-${urlCounter}`;
+    
+    // Truncar URL original se muito longa
+    const displayUrl = originalUrl.length > 50 ? originalUrl.substring(0, 50) + '...' : originalUrl;
+    
+    // Criar card da URL com animação
+    const urlCard = `
+        <div class="col-md-6 mb-3" id="${cardId}">
+            <div class="card h-100 shadow-sm border-0" style="animation: slideInUp 0.5s ease-out;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0 text-primary">
+                            <i class="bi bi-link-45deg"></i> URL #${urlCounter}
+                        </h6>
+                        <small class="text-muted">${new Date().toLocaleTimeString()}</small>
+                    </div>
+                    
+                    <p class="card-text text-muted small mb-2" title="${originalUrl}">
+                        <i class="bi bi-globe"></i> ${displayUrl}
+                    </p>
+                    
+                    <div class="input-group input-group-sm mb-3">
+                        <input type="text" class="form-control" value="${shortUrl}" readonly>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="copyToClipboard('${shortUrl}', this)">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="d-flex gap-1 flex-wrap">
+                        <a href="/stats/${shortCode}/" class="btn btn-info btn-sm flex-fill" target="_blank">
+                            <i class="bi bi-graph-up"></i> Estatísticas
+                        </a>
+                        <a href="${shortUrl}" class="btn btn-success btn-sm flex-fill" target="_blank">
+                            <i class="bi bi-box-arrow-up-right"></i> Testar
+                        </a>
+                        <button class="btn btn-outline-danger btn-sm" onclick="removeUrlCard('${cardId}')" title="Remover da lista">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Adicionar no início da lista
+    recentContainer.insertAdjacentHTML('afterbegin', urlCard);
+    
+    // Manter apenas 6 URLs recentes
+    const cards = recentContainer.children;
+    while (cards.length > 6) {
+        recentContainer.removeChild(cards[cards.length - 1]);
+    }
+    
+    // Smooth scroll para a seção de URLs recentes
+    setTimeout(() => {
+        recentSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 500);
+}
+
+function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text);
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i>';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-secondary');
+    
+    setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 1500);
+}
+
+function removeUrlCard(cardId) {
+    const card = document.getElementById(cardId);
+    if (card) {
+        // Animação de saída
+        card.style.animation = 'slideOutDown 0.3s ease-in';
+        setTimeout(() => {
+            card.remove();
+            
+            // Esconder seção se não há mais URLs
+            const recentContainer = document.getElementById('recent-urls');
+            if (recentContainer.children.length === 0) {
+                document.getElementById('recent-section').style.display = 'none';
+            }
+        }, 300);
+    }
+}
+</script>
+
+<style>
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOutDown {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.btn {
+    transition: all 0.2s ease;
+}
+</style>
+{% endblock %}

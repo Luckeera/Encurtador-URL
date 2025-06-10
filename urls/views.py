@@ -61,3 +61,24 @@ def redirect_url(request, short_code):
         
     except Exception as e:
         return render(request, 'urls/not_found.html', {'short_code': short_code})
+
+
+def url_stats(request, short_code):
+    """Mostrar estatísticas detalhadas de uma URL encurtada"""
+    # Buscar a URL ou retornar 404 se não existir
+    url = get_object_or_404(ShortenedURL, short_code=short_code)
+    
+    # Calcular estatísticas
+    dias_ativa = (timezone.now() - url.created_at).days
+    
+    # Dados para enviar ao template
+    context = {
+        'url': url,
+        'total_clicks': url.click_count,
+        'created_date': url.created_at.strftime('%d/%m/%Y às %H:%M'),
+        'dias_ativa': dias_ativa,
+        'short_url_full': request.build_absolute_uri(f'/{url.short_code}/'),
+        'clicks_por_dia': url.click_count / max(dias_ativa, 1) if dias_ativa > 0 else url.click_count,
+    }
+    
+    return render(request, 'urls/stats.html', context)
