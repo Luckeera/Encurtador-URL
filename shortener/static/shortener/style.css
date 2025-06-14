@@ -1,0 +1,71 @@
+/* shortener/static/shortener/style.css */
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h1, h2 {
+    color: #0056b3;
+}
+
+form p {
+    margin-bottom: 15px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input[type="url"],
+form input[type="datetime-local"] {
+    width: calc(100% - 22px); /* Ajusta largura considerando padding/border */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-right: 10px; /* Espaço entre botões */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.result {
+    margin-top: 30px;
+    padding: 15px;
+    border-top: 1px solid #eee;
+}
+
+.result a {
+    color: #28a745; /* Cor para o link encurtado */
+    word-break: break-all; /* Quebra a linha se a URL for muito longa */
+}
+
+.result a:hover {
+    text-decoration: none;
+}

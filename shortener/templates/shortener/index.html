@@ -1,0 +1,49 @@
+{# shortener/templates/shortener/index.html #}
+{% extends 'shortener/base.html' %} {# Herda do template base #}
+{% load static %} {# Carrega tags para estáticos e urls #}
+
+{% block title %}Encurtar URL{% endblock %} {# Define o título da página #}
+
+{% block content %}
+    <h1>Encurtador de URLs</h1>
+
+    <form method="post">
+        {% csrf_token %} {# Obrigatório para formulários POST no Django #}
+        {{ form.as_p }} {# Renderiza o formulário como parágrafos #}
+        <button type="submit">Encurtar</button>
+    </form>
+
+    {# Exibe o resultado se uma URL curta foi criada #}
+    {% if short_url_object %}
+        <div class="result">
+            <h2>URL Encurtada:</h2>
+            {# Usa a tag url para gerar o link correto para a URL curta #}
+            {% url 'redirect_short_url' short_code=short_url_object.short_code as short_url %}
+            <p>
+                Seu link: <a href="{{ short_url }}">{{ request.build_absolute_uri }}{{ short_url_object.short_code }}/</a>
+                {# Outra forma de construir o link completo: {{ request.scheme }}://{{ request.get_host }}{{ short_url }} #}
+            </p>
+            {% if short_url_object.expires_at %}
+                <p>Expira em: {{ short_url_object.expires_at|date:"d/m/Y H:i" }}</p> {# Formata a data #}
+            {% else %}
+                <p>Não expira.</p>
+            {% endif %}
+            {# Opcional: Botão para copiar para área de transferência #}
+            <button onclick="copyToClipboard('{{ request.build_absolute_uri }}{{ short_url_object.short_code }}/')">Copiar Link</button>
+        </div>
+    {% endif %}
+
+    {# Script para copiar para área de transferência (opcional) #}
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Texto copiado para a área de transferência');
+                // Opcional: Mostrar uma mensagem de sucesso para o usuário
+                alert('Link copiado!');
+            }, function(err) {
+                console.error('Erro ao copiar texto: ', err);
+            });
+        }
+    </script>
+
+{% endblock %}  

@@ -1,0 +1,10 @@
+{# shortener/templates/shortener/expired.html #}
+{% extends 'shortener/base.html' %}
+
+{% block title %}Link Expirado{% endblock %}
+
+{% block content %}
+    <h1>Link Expirado ou Não Encontrado</h1>
+    <p>O link com o código <strong>{{ short_code }}</strong> expirou ou não existe mais.</p>
+    <p><a href="{% url 'index' %}">Voltar para a página inicial para encurtar uma nova URL.</a></p>
+{% endblock %}
