@@ -1,17 +1,22 @@
-# shortener/forms.py
+# shortener/forms.py - CÓDIGO CORRIGIDO
 
 from django import forms
+# Importa o modelo ShortUrl do arquivo models.py
+from .models import ShortUrl
 
-class ShortenUrlForm(forms.Form):
-    long_url = forms.URLField(
-        label="URL Longa",
-        max_length=500,
-        widget=forms.URLInput(attrs={'placeholder': 'Cole sua URL longa aqui'})
-    )
-    expires_at = forms.DateTimeField(
-        label="Expira em (Opcional)",
-        required=False, # Torna o campo opcional
-        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), # Widget HTML5 para data/hora
-        input_formats=['%Y-%m-%dT%H:%M'], # Formato esperado do widget datetime-local
-        help_text="Deixe em branco para nunca expirar."
-    )
+# Define o formulário baseado no modelo ShortUrl
+class ShortenUrlForm(forms.ModelForm):
+    class Meta:
+        # Especifica qual modelo este formulário está associado
+        model = ShortUrl
+        # Define quais campos do modelo serão incluídos no formulário
+        fields = ['long_url', 'expires_at']
+        widgets = {
+            # Opcional: Adicionar um widget de calendário para expires_at
+            # Isso requer configuração adicional, como um DatePicker/DateTimePicker
+            # Por enquanto, um Input normal funciona, mas o usuário precisa digitar no formato correto
+            'expires_at': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+
+# Não há mais a definição da classe ShortUrl(models.Model) aqui!
+# Ela reside APENAS em shortener/models.py

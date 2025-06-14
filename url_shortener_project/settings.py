@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'shortener',  # Your URL shortener app
+    'shortener',
+    'django.contrib.humanize',  # Your URL shortener app
 
 ]
 

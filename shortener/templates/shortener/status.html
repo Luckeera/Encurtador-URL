@@ -1,0 +1,67 @@
+{# shortener/templates/shortener/status.html #}
+{% extends 'shortener/base.html' %} {# Herda do template base #}
+{% load static %} {# Carrega tags para estáticos #}
+{% load humanize %} {# Carrega tags do app humanize para formatação de números (opcional) #}
+
+
+{% block title %}Status da URL: {{ short_url_object.short_code }}{% endblock %} {# Define o título com o código curto #}
+
+
+{% block content %}
+    <h1>Status da URL Encurtada</h1>
+
+    {# Verifica se o objeto short_url_object foi passado pela view (deve ser sempre True com get_object_or_404) #}
+    {% if short_url_object %}
+        <div class="status-details">
+            {# Exibe os detalhes do objeto ShortUrl #}
+            <p><strong>Código Curto:</strong> {{ short_url_object.short_code }}</p>
+
+            {# Constrói o URL completo para o link de redirecionamento #}
+            {% url 'redirect_short_url' short_code=short_url_object.short_code as short_url %}
+            <p><strong>Link Completo:</strong> <a href="{{ short_url }}" target="_blank">{{ request.build_absolute_uri }}{{ short_url_object.short_code }}/</a></p>
+            {# target="_blank" abre o link em uma nova aba #}
+
+            <p><strong>URL Original:</strong> <a href="{{ short_url_object.long_url }}" target="_blank">{{ short_url_object.long_url }}</a></p>
+
+            {# Exibe a data de criação formatada #}
+            <p><strong>Criado em:</strong> {{ short_url_object.created_at|date:"d/m/Y H:i" }}</p>
+
+            {# Verifica se a URL tem data de expiração #}
+            {% if short_url_object.expires_at %}
+                <p><strong>Expira em:</strong> {{ short_url_object.expires_at|date:"d/m/Y H:i" }}</p>
+                {# Verifica se o link já expirou usando o método is_expired do modelo #}
+                {% if short_url_object.is_expired %}
+                     <p style="color: red;">(Este link expirou)</p> {# Mensagem de expiração #}
+                {% endif %}
+            {% else %}
+                <p><strong>Expiração:</strong> Não expira.</p> {# Mensagem se não tiver expiração #}
+            {% endif %}
+
+            {# Exibe a contagem de cliques #}
+            {# Usa o filtro intcomma do humanize para formatar o número (ex: 1,234) #}
+            <p><strong>Cliques:</strong> {{ short_url_object.clicks|intcomma }}</p>
+            {# Se não usar humanize, use apenas: <p><strong>Cliques:</strong> {{ short_url_object.clicks }}</p> #}
+
+            {# Opcional: Botão para copiar o link curto para área de transferência #}
+            <button onclick="copyToClipboard('{{ request.build_absolute_uri }}{{ short_url_object.short_code }}/')">Copiar Link Curto</button>
+        </div>
+    {% else %}
+        <p>URL curta não encontrada.</p> {# Mensagem de fallback (não deve ser vista com get_object_or_404) #}
+    {% endif %}
+
+    {# Link para voltar para a página inicial #}
+    <p><a href="{% url 'index' %}">Voltar para a página inicial</a></p>
+
+    {# Script para copiar para área de transferência (opcional) - Replicado do index.html #}
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Texto copiado para a área de transferência');
+                alert('Link copiado!');
+            }, function(err) {
+                console.error('Erro ao copiar texto: ', err);
+            });
+        }
+    </script>
+
+{% endblock %}
