@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.env
+*.venv
+env/
+venv/
+ENV/
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Django / Migrations
+*.sqlite3
+db.sqlite3
+*/migrations/**/__pycache__/
+*/migrations/**/*.py[cod]
+*/migrations/**/0001_initial.py
+*/migrations/**/000*_auto_*.py
+
+# Virtual Environments
+.venv/
+.poetry/
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Static & media (generated)
+staticfiles/
+media/
+
+# Logs
+*.log
+
+# Coverage / testing
+htmlcov/
+.coverage
+.tox/
+.pytest_cache/
+
+# Other
+.env.*
+.envrc
+*.bak

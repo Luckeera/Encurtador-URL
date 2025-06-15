@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: gunicorn url_shortener_project.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - db_data:/app/db.sqlite3 # Mapeia o arquivo do banco de dados para um volume
+    ports:
+      - "8000:8000"
+    environment:
+      # Exemplo de variáveis de ambiente - ajuste conforme necessário
+      SECRET_KEY: django-insecure-3&dq*hx__abl7l$+u+&*id7ags(h=w#l*hhw)6w#6$qi3r!cb4 # Use uma variável de ambiente segura em produção!
+      DEBUG: "True" # Defina como "False" para produção
+      # DATABASE_URL: sqlite:///db.sqlite3 # Exemplo para usar dj-database-url
+    depends_on:
+      # Adicione dependências aqui se usar outros serviços (ex: banco de dados separado)
+      - # db (se usar um contêiner de banco de dados separado)
+
+# Define volumes para persistência de dados
+volumes:
+  db_data:
+    driver: local 
