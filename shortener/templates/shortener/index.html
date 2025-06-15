@@ -2,28 +2,30 @@
 {% extends 'shortener/base.html' %} {# Herda do template base #}
 {% load static %} {# Carrega tags para estáticos e urls #}
 
-
 {% block title %}Encurtar URL{% endblock %} {# Define o título da página #}
 
-
 {% block content %}
-    <h1>URL Shortener</h1>
+    <h1>Encurtador de URLs</h1>
 
     <form method="post">
         {% csrf_token %} {# Obrigatório para formulários POST no Django #}
-        {{ form.as_p }} {# Renderiza o formulário como parágrafos #}
+        {{ form.as_p }} {# Renderiza o formulário como parágrafos. O CSS estilizará os <p> e <label> dentro do form #}
         <button type="submit">Encurtar</button>
     </form>
 
     {# Exibe o resultado se uma URL curta foi criada na submissão POST #}
     {% if short_url_object %}
+        {# Adicionada a classe 'result' para estilização específica #}
         <div class="result">
-            <h2>URL Encurtada Criada:</h2> {# Título ajustado para clareza #}
+            <h2>URL Encurtada Criada:</h2>
             {# Usa a tag url para gerar o link correto para a URL curta de redirecionamento #}
             {% url 'redirect_short_url' short_code=short_url_object.short_code as short_url %}
             <p>
                 Seu link: <a href="{{ short_url }}">{{ request.build_absolute_uri }}{{ short_url_object.short_code }}/</a>
                 {# request.build_absolute_uri constrói o URL completo (esquema + host + path) #}
+            </p>
+            <p>
+                URL Original: <a href="{{ short_url_object.long_url }}" target="_blank">{{ short_url_object.long_url }}</a>
             </p>
             {% if short_url_object.expires_at %}
                 <p>Expira em: {{ short_url_object.expires_at|date:"d/m/Y H:i" }}</p> {# Formata a data #}
@@ -39,22 +41,26 @@
 
     {# --- Adicionado: Seção para listar todas as URLs encurtadas --- #}
     <h2>Todas as URLs Encurtadas</h2>
-    {% if all_urls %} {# Verifica se a lista de URLs não está vazia #}
-        <ul>
-            {# Itera sobre cada objeto ShortUrl na lista 'all_urls' passada pela view #}
-            {% for url in all_urls %}
-                <li>
-                    {# Exibe a URL longa e o link para a URL curta #}
-                    {{ url.long_url }} -> <a href="{% url 'redirect_short_url' short_code=url.short_code %}">{{ request.build_absolute_uri }}{{ url.short_code }}/</a>
-                    {# --- Adicionado: Link para a página de status para cada item na lista --- #}
-                    (<a href="{% url 'status_short_url' short_code=url.short_code %}">Status</a>)
-                    {# Opcional: Exibir data de criação ou expiração aqui também, se desejar #}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Nenhuma URL encurtada ainda.</p> {# Mensagem exibida se não houver URLs no banco #}
-    {% endif %}
+    {# Adicionada a classe 'url-list' para estilização da lista #}
+    <div class="url-list">
+        {% if all_urls %} {# Verifica se a lista de URLs não está vazia #}
+            <ul>
+                {# Itera sobre cada objeto ShortUrl na lista 'all_urls' passada pela view #}
+                {% for url in all_urls %}
+                    <li>
+                        {# Exibe a URL longa e o link para a URL curta #}
+                        {{ url.long_url }} -> <a href="{% url 'redirect_short_url' short_code=url.short_code %}">{{ request.build_absolute_uri }}{{ url.short_code }}/</a>
+                        {# --- Adicionado: Link para a página de status para cada item na lista --- #}
+                        {# Adicionada a classe 'status-link' para estilização específica do link de status #}
+                        <a href="{% url 'status_short_url' short_code=url.short_code %}" class="status-link">(Status)</a>
+                        {# Opcional: Exibir data de criação ou expiração aqui também, se desejar #}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhuma URL encurtada ainda.</p> {# Mensagem exibida se não houver URLs no banco #}
+        {% endif %}
+    </div>
 
     {# Script para copiar para área de transferência (opcional) #}
     <script>
@@ -65,6 +71,7 @@
                 alert('Link copiado!');
             }, function(err) {
                 console.error('Erro ao copiar texto: ', err);
+                alert('Erro ao copiar link. Por favor, tente manualmente.'); // Mensagem de erro
             });
         }
     </script>

@@ -3,15 +3,14 @@
 {% load static %} {# Carrega tags para estáticos #}
 {% load humanize %} {# Carrega tags do app humanize para formatação de números (opcional) #}
 
-
 {% block title %}Status da URL: {{ short_url_object.short_code }}{% endblock %} {# Define o título com o código curto #}
-
 
 {% block content %}
     <h1>Status da URL Encurtada</h1>
 
     {# Verifica se o objeto short_url_object foi passado pela view (deve ser sempre True com get_object_or_404) #}
     {% if short_url_object %}
+        {# Adicionada a classe 'status-details' para estilização específica #}
         <div class="status-details">
             {# Exibe os detalhes do objeto ShortUrl #}
             <p><strong>Código Curto:</strong> {{ short_url_object.short_code }}</p>
@@ -31,7 +30,8 @@
                 <p><strong>Expira em:</strong> {{ short_url_object.expires_at|date:"d/m/Y H:i" }}</p>
                 {# Verifica se o link já expirou usando o método is_expired do modelo #}
                 {% if short_url_object.is_expired %}
-                     <p style="color: red;">(Este link expirou)</p> {# Mensagem de expiração #}
+                     {# Adicionada a classe 'expired-message' para estilização específica #}
+                     <p class="expired-message">(Este link expirou)</p> {# Mensagem de expiração #}
                 {% endif %}
             {% else %}
                 <p><strong>Expiração:</strong> Não expira.</p> {# Mensagem se não tiver expiração #}
@@ -60,6 +60,7 @@
                 alert('Link copiado!');
             }, function(err) {
                 console.error('Erro ao copiar texto: ', err);
+                alert('Erro ao copiar link. Por favor, tente manualmente.'); // Mensagem de erro
             });
         }
     </script>

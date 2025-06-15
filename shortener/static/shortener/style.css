@@ -1,71 +1,280 @@
 /* shortener/static/shortener/style.css */
+
+/* Reset básico ou normalização (opcional, mas boa prática) */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fonte mais moderna */
     line-height: 1.6;
     margin: 0;
-    padding: 20px;
-    background-color: #f4f4f4;
+    padding: 0; /* Removido padding do body, o container já tem */
+    background-color: #eef2f7; /* Cor de fundo suave */
     color: #333;
+    display: flex; /* Usado para centralizar o container verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente (pode precisar de min-height: 100vh) */
+    min-height: 100vh; /* Garante que o body ocupe a altura total da viewport */
+    padding: 20px; /* Adiciona padding para telas menores */
 }
 
 .container {
-    max-width: 800px;
-    margin: 20px auto;
+    width: 100%; /* Ocupa a largura total em telas menores */
+    max-width: 700px; /* Largura máxima para telas maiores */
+    margin: 20px auto; /* Centraliza o container */
     background: #fff;
-    padding: 20px 30px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    padding: 30px; /* Aumenta o padding interno */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Sombra mais suave */
+    border-radius: 12px; /* Cantos mais arredondados */
+    text-align: center; /* Centraliza o conteúdo principal */
 }
 
 h1, h2 {
-    color: #0056b3;
+    color: #0056b3; /* Cor primária */
+    margin-bottom: 20px;
+    text-align: center; /* Centraliza títulos */
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-size: 1.8em;
+    margin-top: 30px; /* Espaço acima dos subtítulos */
+    margin-bottom: 15px;
+    border-bottom: 2px solid #eee; /* Linha sutil abaixo dos subtítulos */
+    padding-bottom: 10px;
+}
+
+/* Estilos para o formulário */
+form {
+    margin-bottom: 30px;
+    text-align: left; /* Alinha o conteúdo do formulário à esquerda */
 }
 
 form p {
-    margin-bottom: 15px;
+    margin-bottom: 20px; /* Aumenta espaço entre os campos do formulário */
 }
 
 form label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px; /* Espaço entre label e input */
     font-weight: bold;
+    color: #555;
 }
 
 form input[type="url"],
 form input[type="datetime-local"] {
-    width: calc(100% - 22px); /* Ajusta largura considerando padding/border */
-    padding: 10px;
+    width: 100%; /* Ocupa 100% da largura disponível */
+    padding: 12px 15px; /* Aumenta padding */
     margin-bottom: 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 6px; /* Cantos arredondados */
+    font-size: 1em;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Transição suave */
 }
 
+form input[type="url"]:focus,
+form input[type="datetime-local"]:focus {
+    border-color: #007bff; /* Cor da borda ao focar */
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2); /* Sombra suave ao focar */
+    outline: none; /* Remove o outline padrão do navegador */
+}
+
+/* Estilos para botões */
 button {
-    background-color: #007bff;
+    background-color: #007bff; /* Cor primária do botão */
     color: white;
-    padding: 10px 20px;
+    padding: 12px 25px; /* Aumenta padding */
     border: none;
-    border-radius: 5px;
+    border-radius: 6px; /* Cantos arredondados */
     cursor: pointer;
-    font-size: 1em;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease-in-out, transform 0.1s ease-in-out; /* Transição suave */
     margin-right: 10px; /* Espaço entre botões */
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* Cor mais escura ao passar o mouse */
 }
 
+button:active {
+    transform: scale(0.98); /* Efeito de clique */
+}
+
+/* Estilos para a seção de resultado (URL criada) */
 .result {
     margin-top: 30px;
-    padding: 15px;
-    border-top: 1px solid #eee;
+    padding: 20px;
+    border: 1px solid #d4edda; /* Borda suave verde para sucesso */
+    background-color: #e9f7ef; /* Fundo suave verde */
+    border-radius: 8px;
+    text-align: left; /* Alinha o conteúdo à esquerda */
+}
+
+.result h2 {
+    color: #155724; /* Cor verde escura para o título do resultado */
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: none; /* Remove a linha de baixo */
+    padding-bottom: 0;
+    text-align: left;
+}
+
+.result p {
+    margin-bottom: 10px;
 }
 
 .result a {
-    color: #28a745; /* Cor para o link encurtado */
+    color: #28a745; /* Cor verde para o link encurtado */
     word-break: break-all; /* Quebra a linha se a URL for muito longa */
+    text-decoration: none; /* Remove sublinhado padrão */
+    font-weight: bold;
 }
 
 .result a:hover {
+    text-decoration: underline; /* Adiciona sublinhado ao passar o mouse */
+}
+
+/* Estilos para a seção de status */
+.status-details {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #cce5ff; /* Borda suave azul */
+    background-color: #e2f3ff; /* Fundo suave azul */
+    border-radius: 8px;
+    text-align: left; /* Alinha o conteúdo à esquerda */
+}
+
+.status-details p {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.status-details strong {
+    color: #004085; /* Cor azul escura para os rótulos */
+}
+
+.status-details a {
+    color: #007bff; /* Cor azul para links na página de status */
     text-decoration: none;
+}
+
+.status-details a:hover {
+    text-decoration: underline;
+}
+
+/* Estilo específico para a mensagem de link expirado */
+.expired-message {
+    color: #dc3545; /* Cor vermelha para a mensagem de expiração */
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Estilos para a lista de URLs */
+.url-list {
+    margin-top: 30px;
+    text-align: left; /* Alinha a lista à esquerda */
+}
+
+.url-list ul {
+    list-style: none; /* Remove marcadores de lista */
+    padding: 0;
+    margin: 0;
+}
+
+.url-list li {
+    background-color: #f8f9fa; /* Fundo suave para cada item da lista */
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    display: flex; /* Usa flexbox para alinhar itens na linha */
+    justify-content: space-between; /* Espaça os elementos */
+    align-items: center; /* Centraliza verticalmente */
+    word-break: break-all; /* Quebra a linha para URLs longas */
+}
+
+.url-list li a {
+     color: #007bff; /* Cor azul para links na lista */
+     text-decoration: none;
+     margin-left: 5px; /* Espaço entre a URL longa e o link curto */
+}
+
+.url-list li a:hover {
+    text-decoration: underline;
+}
+
+.url-list li .status-link {
+    font-size: 0.9em;
+    margin-left: 15px; /* Espaço entre o link curto e o link de status */
+    white-space: nowrap; /* Evita que o link de status quebre a linha */
+}
+
+/* Estilos para a página de link expirado/não encontrado */
+.expired-page h1 {
+    color: #dc3545; /* Cor vermelha para o título */
+}
+
+.expired-page p {
+    font-size: 1.1em;
+    text-align: center;
+}
+
+.expired-page a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.expired-page a:hover {
+    text-decoration: underline;
+}
+
+/* Estilo para mensagens de erro do formulário (se houver) */
+.errorlist {
+    color: #dc3545; /* Cor vermelha para mensagens de erro */
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.errorlist li {
+    margin-bottom: 5px;
+}
+
+/* Responsividade básica */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px; /* Reduz padding em telas menores */
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    h2 {
+        font-size: 1.5em;
+    }
+
+    button {
+        width: 100%; /* Botões ocupam a largura total */
+        margin-right: 0;
+        margin-bottom: 10px; /* Adiciona espaço entre botões empilhados */
+    }
+
+    .url-list li {
+        flex-direction: column; /* Empilha itens da lista em telas pequenas */
+        align-items: flex-start; /* Alinha itens empilhados à esquerda */
+    }
+
+    .url-list li .status-link {
+        margin-left: 0;
+        margin-top: 8px; /* Espaço acima do link de status */
+    }
 }
