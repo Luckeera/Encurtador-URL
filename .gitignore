@@ -53,3 +53,4 @@ htmlcov/
 .env.*
 .envrc
 *.bak
+consolidar_projeto.py
